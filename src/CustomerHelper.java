@@ -16,7 +16,7 @@ public class CustomerHelper {
         }
         try {
             int res = Integer.parseInt(id);
-            if(Biblio.taken(conn, res, 1)) return -1;
+            if(!Biblio.taken(conn, res, 1)) return -1;
             return res;
         }
         catch (NumberFormatException e) {

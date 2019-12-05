@@ -66,7 +66,7 @@ public class DBFunctions {
             }
             else {              // attendance date is earlier in customer's join date
                 Date joinDate = rs.getDate("JoinedDate");
-                if (attendanceDate.getTime() - joinDate.getTime() > 0) {
+                if (attendanceDate.getTime() - joinDate.getTime() >= 0) {
                     return true;
                 } else {
                     System.err.println("Error: attendance date " +attendanceDate+
@@ -106,9 +106,10 @@ public class DBFunctions {
             }
             else {  // review date is not valid
                 Date attendDate = rs.getDate("AttendanceDate");
-                long diffDay = (reviewDate.getTime() - attendDate.getTime())/(7 * MS_IN_A_DAY);
+                long diffDay = (reviewDate.getTime() - attendDate.getTime())/MS_IN_A_DAY;
                 if (diffDay < 0){
-                    System.err.println("Error: customer " + cid +
+                    System.err.println("Error: Invalid Review Date! " +
+                            "\n       customer " + cid +
                             " cannot review the movie " + mid +
                             " before the attendance date" + attendDate +
                             "\n      [DBFunctions.isValidAttendanceDate()]");
@@ -116,7 +117,8 @@ public class DBFunctions {
                 else if ( diffDay <=7) return true;
 
                 else {
-                    System.err.println("Error: customer " + cid +
+                    System.err.println("Error: Invalid Review Date! " +
+                            "\n       customer " + cid +
                             " cannot review the movie " + mid +
                             " after 7 days of the attendance " + attendDate +
                             "\n      [DBFunctions.isValidAttendanceDate()]");
@@ -173,7 +175,7 @@ public class DBFunctions {
     public static boolean isValidRating(int rating) {
         if (rating > 5 || rating < 1) {
             System.err.printf("Error: Invalid rating: %d. Rating must be between 1-5." +
-                    "\n      [DBFunctions.isFirstReview()]", rating);
+                    "\n      [DBFunctions.isValidRating()]", rating);
             return false;
         }
         return true;
@@ -181,11 +183,11 @@ public class DBFunctions {
 
     /**
      * (xuefang)
-     * This is the function that to check if the date is open for endorsement for a particular review: rule is voting
-     * is closed for all reviews of the movie written three days ago.
+     * This is the function that checks if the date is open for endorsement for a particular review:
+     * Rule: voting is closed for all reviews written three days ago.
      *
-     * @param Date endorseDate the current endorsement date of a review
-     * @param Date reviewDate the date of a review written for a movie
+     * @param endorseDate java.sql.Date, the current endorsement date of a review
+     * @param reviewDate java.sql.Date, the date of a review written for a movie
      * @return true if the date is open for voting a review
      */
     public static boolean isOpenForEndorsement(Date reviewDate, Date endorseDate) {
@@ -193,8 +195,14 @@ public class DBFunctions {
             System.out.println("Oops! No review written on this date.");
             return false;
         }
-        if (endorseDate.getTime() - reviewDate.getTime() > 3 * MS_IN_A_DAY) {
-            System.err.println("Sorry, you cannot vote a review written 3 days ago.");
+        long diffDays = (endorseDate.getTime() - reviewDate.getTime())/ MS_IN_A_DAY;
+        if (diffDays > 3) {
+            System.err.println("Sorry, you cannot vote a review written 3 days ago." +
+                    "\n      [DBFunctions.isOpenForEndorsement()]");
+            return false;
+        } else if (diffDays < 0){
+            System.err.println("Sorry, you cannot vote a review before it is written."+
+                    "\n      [DBFunctions.isOpenForEndorsement()]");
             return false;
         }
         return true;
@@ -205,13 +213,15 @@ public class DBFunctions {
      * This is the function to check if the voter is voting his or her own review. The rule is a customer cannot endorse
      * his or her own review.
      *
-     * @param int customerID
-     * @param int endorserID
+     * @param customerID int
+     * @param endorserID int
      * @return true if the customer is self-endorse.
      */
     public static boolean isSelfEndorse(int endorserID, int customerID) {
         if (endorserID == customerID) {
-            System.err.println("Sorry, you can not vote for yourself.");
+            System.err.println("Sorry, customer " +customerID+
+                    ", you can not vote for yourself."+
+                    "\n      [DBFunctions.isSelfEndorse()]");
             return true;
         }
         return false;
@@ -222,8 +232,8 @@ public class DBFunctions {
      * This is the function to check if the current endorsement date for a movie is at least one day after the customer's
      * endorsement of a review for the same movie.
      *
-     * @param Date endorseDate
-     * @param Date lastEndorseDate
+     * @param endorseDate java.sql.Date
+     * @param lastEndorseDate java.sql.Date
      * @return true if current endorsement date is more than 24 hours later than last endorsement of the same movie, or
      * the customer hasn't endorsed of this movie yet.
      */
@@ -234,7 +244,8 @@ public class DBFunctions {
         if (endorseDate.getTime() - lastEndorseDate.getTime() >= MS_IN_A_DAY) {
             return true;
         } else {
-            System.err.println("Sorry, you cannot endorse reviews of the same movie within 24 hours.");
+            System.err.println("Sorry, you cannot endorse reviews of the same movie within 24 hours."+
+                    "\n      [DBFunctions.checkEndorsementDate()]");
             return false;
         }
     }
@@ -243,9 +254,9 @@ public class DBFunctions {
      * (xuefang)
      * This function checks if the endorsement is allowed for a review of a certain movie.
      *
-     * @param int  rid
-     * @param int  endorser_id
-     * @param Date endorseDate
+     * @param rid int, reviewID
+     * @param endorser_id int, customer id of the endorser
+     * @param endorseDate java.sql.Date, endorse date
      * @return true if endorse is allowed, which means the endorsement satisfies three conditions.
      */
     public static boolean isEndorseAllowed(int rid, int endorser_id, Date endorseDate) {
@@ -293,6 +304,7 @@ public class DBFunctions {
             }
             return true;
         } catch (SQLException e) {
+            System.err.println("Error: SQLException in DBFunctions.isEndorseAllowed()");
             e.printStackTrace();
             return false;
         }
