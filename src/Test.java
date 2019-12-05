@@ -28,7 +28,7 @@ public class Test {
             e.printStackTrace();
         } finally {
             if (conn != null) try {
-                conn.close();
+                conn.close()
             } catch (SQLException e) {
                 e.printStackTrace();
             }
