@@ -1,6 +1,0 @@
-Chuhan	chuhan@gmail.com	2019-04-03	3599931
-Xuefang	xuefang@gmail.com	2019-01-04	6763382
-Yuting	yuting@gmail.com	2019-09-15	6086493
-Harry	harry@hogwarts.edu	2019-09-09	9382724
-Ron	ron@hogwarts.edu	2019-10-28	6169095
-Hemionie	hem@hogwarts.edu	2019-01-01	6814996

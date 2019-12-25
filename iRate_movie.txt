@@ -1,6 +1,0 @@
-Frozen	1001
-Frozen2	1002
-Avengers	2001
-StarWars	3001
-StarWars2	3002
-StarWars3	3003
