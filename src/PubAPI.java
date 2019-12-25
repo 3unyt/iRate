@@ -43,7 +43,7 @@ public class PubAPI {
      * @param conn
      */
     public static void loadCustomer(Connection conn){
-        String fineName = "iRate_customer.txt";
+        String fineName = "tests/test_data/iRate_customer.txt";
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(new File(fineName)));
@@ -85,7 +85,7 @@ public class PubAPI {
      * @param conn
      */
     public static void loadMovie(Connection conn){
-        String fineName = "iRate_movie.txt";
+        String fineName = "tests/test_data/iRate_movie.txt";
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(new File(fineName)));
@@ -124,7 +124,7 @@ public class PubAPI {
      * @param conn
      */
     public static void loadAttendance(Connection conn){
-        String fineName = "iRate_attendance.txt";
+        String fineName = "tests/test_data/iRate_attendance.txt";
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(new File(fineName)));
@@ -166,7 +166,7 @@ public class PubAPI {
      * @param conn
      */
     public static void loadReview(Connection conn){
-        String fineName = "iRate_review.txt";
+        String fineName = "tests/test_data/iRate_review.txt";
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(new File(fineName)));
@@ -210,7 +210,7 @@ public class PubAPI {
      * @param conn
      */
     public static void loadEndorsement(Connection conn){
-        String fineName = "iRate_endorsement.txt";
+        String fineName = "tests/test_data/iRate_endorsement.txt";
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(new File(fineName)));
