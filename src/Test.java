@@ -10,14 +10,11 @@ public class Test {
         try{
             conn = Tables.newConnection();
             Statement stmt = conn.createStatement();
-//            ResultSet rs = null;
-//
+
             // create tables
             Tables.initializeAll(stmt);
-//
 
             insertTestMovie(conn, stmt, null);
-//            PubAPI.printAllTables(stmt, null);
 
             testCustomerConstraints(conn, stmt, null);
             testAttendanceConstraints(conn, stmt, null);
@@ -28,12 +25,11 @@ public class Test {
             e.printStackTrace();
         } finally {
             if (conn != null) try {
-                conn.close()
+                conn.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
-
 
     }
 
@@ -71,8 +67,7 @@ public class Test {
         int id_good2 = 2222222;
         int id_good3 = 3333333;
 
-        Date date = Biblio.convertToDate("2019-11-05");
-
+        Date date = PubUtil.convertToDate("2019-11-05");
 
         try {
             pstmt = conn.prepareStatement("insert into Customer (Name, Email, JoinedDate, CustomerID) values (?, ?, ?, ?)");
@@ -98,10 +93,8 @@ public class Test {
             System.out.println("Created 3 new customers:");
             PubAPI.printTable(stmt,null, "Customer");
 
-
         } catch (SQLException e) {
             System.err.println("Error: SQLException in Test.testCustomerConstraints()");
-
         }
 
         try {
@@ -117,7 +110,6 @@ public class Test {
 
         }
 
-
         System.out.println("==== End of Test: Constraints for Table Customer =====\n\n");
 
     }
@@ -130,8 +122,8 @@ public class Test {
         int cid_notExist = 1111112;
         int mid = 1001;
         int mid2 = 1002;
-        Date date_good = Biblio.convertToDate("2019-11-06");
-        Date date_bad = Biblio.convertToDate("2019-11-04");
+        Date date_good = PubUtil.convertToDate("2019-11-06");
+        Date date_bad = PubUtil.convertToDate("2019-11-04");
 
         try{
             pstmt = conn.prepareStatement("insert into Attendance (MovieId, AttendanceDATE, CustomerId) values (?, ?, ?)");
@@ -153,7 +145,6 @@ public class Test {
             pstmt.execute();
             System.out.println("\nCreated 3 new attendances:");
             PubAPI.printTable(stmt, null, "Attendance");
-
 
         } catch (SQLException e){
             System.err.println("Error: SQLException in Test.testAttendanceConstraints()");
@@ -201,10 +192,10 @@ public class Test {
         int rate_bad = 0;
 
         String review = "A good movie!";
-        Date date_good = Biblio.convertToDate("2019-11-06");
-        Date date_good2 = Biblio.convertToDate("2019-11-08");
-        Date date_tooEarly = Biblio.convertToDate("2019-11-05");
-        Date date_tooLate = Biblio.convertToDate("2019-11-14");
+        Date date_good = PubUtil.convertToDate("2019-11-06");
+        Date date_good2 = PubUtil.convertToDate("2019-11-08");
+        Date date_tooEarly = PubUtil.convertToDate("2019-11-05");
+        Date date_tooLate = PubUtil.convertToDate("2019-11-14");
         // multiple review
 
         try{
@@ -212,7 +203,7 @@ public class Test {
             System.out.println("\n--- An example of valid input: ---" );
             System.out.printf(
                     "| CustomerID | MovieID | ReviewDate | Rating | ReviewID  | Review \n" +
-                    "| %10d | %7d | %10s | %6d | %d | %s\n", cid, mid, date_good, rate_good, rid, review);
+                            "| %10d | %7d | %10s | %6d | %d | %s\n", cid, mid, date_good, rate_good, rid, review);
             pstmt.setInt(1, cid);
             pstmt.setInt(2, mid);
             pstmt.setDate(3, date_good);
@@ -226,7 +217,9 @@ public class Test {
             pstmt.execute();
 
             System.out.println("Inserted 2 new reviews: ");
-            CustomerHelper.showInformation(stmt, "Review", "MovieID", mid);
+            PubAPI.showInformation(stmt, null,"Review", "MovieID", mid);
+            pstmt.setInt(1, cid);
+            pstmt.setInt(2, mid);
 
         } catch (SQLException e){
             System.err.println("Error: SQLException in Test.testReviewConstraints()");
@@ -248,7 +241,7 @@ public class Test {
         try{
             System.out.println("\n--- An example of a review date before attendance ---" );
             System.out.printf("| CustomerID | MovieID | ReviewDate | Rating | ReviewID  | Review \n" +
-                            "| %10d | %7d | %10s | %6d | %d | %s\n", cid, mid2, date_tooEarly, rate_good, rid2, review);
+                    "| %10d | %7d | %10s | %6d | %d | %s\n", cid, mid2, date_tooEarly, rate_good, rid2, review);
 
             pstmt.setInt(2, mid2);
             pstmt.setDate(3, date_tooEarly);
@@ -306,20 +299,20 @@ public class Test {
         int cid = 1111111;
         int cid2 = 2222222;
         int cid3 = 3333333;
-        Date date_good = Biblio.convertToDate("2019-11-06");
-        Date date_tooEarly = Biblio.convertToDate("2019-11-05");
-        Date date_tooLate = Biblio.convertToDate("2019-11-10");
+        Date date_good = PubUtil.convertToDate("2019-11-06");
+        Date date_tooEarly = PubUtil.convertToDate("2019-11-05");
+        Date date_tooLate = PubUtil.convertToDate("2019-11-10");
         try{
             pstmt = conn.prepareStatement("insert into Endorsement (ReviewID, CustomerID, EndorsementDate) values (?, ?, ?)");
             System.out.println("\n--- An example of valid input: ---" );
             System.out.printf("| ReviewID  | CustomerID | EndorsementDate | \n" +
-                            "| %d | %10d | %15s |\n", rid, cid3, date_good);
+                    "| %d | %10d | %15s |\n", rid, cid3, date_good);
             pstmt.setInt(1, rid);
             pstmt.setInt(2, cid3);
             pstmt.setDate(3, date_good);
             pstmt.execute();
             System.out.println("Inserted new endorsement: ");
-            CustomerHelper.showInformation(stmt, "Endorsement", "ReviewID", rid);
+            PubAPI.showInformation(stmt, null,"Endorsement", "ReviewID", rid);
 
         } catch (SQLException e){
             System.err.println("Error: SQLException in Test.testEndorsementConstraints()");

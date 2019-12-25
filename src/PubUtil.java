@@ -1,12 +1,11 @@
 import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Properties;
 import java.util.Random;
 
-public class Biblio {
+public class PubUtil {
 
-    /** (yuting)
+    /**
      * Randomly generate id for movie, customer or review
      * @param choice 0:movie，1:customer，2:review
      * @param conn derby connection
@@ -37,12 +36,11 @@ public class Biblio {
     }
 
     /**
-     * (chuhan)
      * convert input String to date type
-     * @param inputDate
-     * @return
+     * @param inputDate user input string
+     * @return Date type of the input date
      */
-    static java.sql.Date convertToDate(String inputDate){
+    static Date convertToDate(String inputDate){
         SimpleDateFormat d = new SimpleDateFormat("yyyy-MM-dd");
         java.util.Date date = null;
         try{
@@ -51,17 +49,16 @@ public class Biblio {
             System.out.println("Invalid date!");
             return null;
         }
-        java.sql.Date res = new java.sql.Date(date.getTime());
+        Date res = new Date(date.getTime());
         return res;
     }
 
     /**
-     * (chuhan)
-     * check if the id exits in the table
-     * @param conn
+     * check if the id exits in the correspondent table
+     * @param conn derby connection
      * @param id
-     * @param choice
-     * @return
+     * @param choice 0:movie，1:customer，2:review
+     * @return true if the id exits in the correspondent table
      */
     static boolean taken(Connection conn, int id, int choice){
         String table;
@@ -81,9 +78,31 @@ public class Biblio {
         return b;
     }
 
+
+    /**
+     * Check whether the key of a column name is in a specific table
+     * @param stmt derby Statement
+     * @param tbl String, table name
+     * @param colName String, column name
+     * @param key int, id of the colName
+     * @return true if key is in the table
+     */
+    public static boolean inTable(Statement stmt, String tbl, String colName, int key){
+        ResultSet rs;
+        String query = "select "+colName+" from "+tbl+" where "+colName+"  = " + key;
+        try{
+            rs = stmt.executeQuery(query);
+            return rs.next();
+        } catch (SQLException e){
+            System.err.println("Error: SQLException in PubAPI.inTable()");
+        }
+
+        return false;
+    }
+
     /**
      * check if the input is an int
-     * @param str
+     * @param str input string
      * @return -1 if invalid
      */
     public static int validInt(String str) {
@@ -99,6 +118,11 @@ public class Biblio {
         }
     }
 
+
+    /**
+     * Print row data with certain format: each element in row is printed with width=18 and separated by "|"
+     * @param row String[], items in a row
+     */
     public static void printRow(String[] row){
         for (String s:row){
             if (s.length() > 18){
@@ -109,6 +133,10 @@ public class Biblio {
         System.out.println("|");
     }
 
+    /**
+     * Print a line with a width of nColumns
+     * @param nColumns int, number of columns
+     */
     public static void printLine(int nColumns){
         for (int c=0; c<nColumns; c++) System.out.print(" --------------------");
         System.out.println();

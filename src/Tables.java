@@ -5,14 +5,19 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Properties;
 
+/**
+ * This class creates all the entity tables for Customer, Movie, Attendance, Review and Endorsement;
+ * creates the stored functions for condition check as
+ * checkReviewTableDates, checkEndorsementTable, checkReviewOnce;
+ * and some table constraints for format check as valid_reviewDate, valid_reviewOnce and checkEndorsementTable.
+ */
 public class Tables {
     public static String[] dbTables = {
             "Endorsement", "Review", "Attendance", "Movie", "Customer"
     };
-    //todo: update names of dbFunctions, + chuhan's functions name
     private static String[] dbFunctions = {"isValidEmail", "isValidAttendanceDate", "checkReviewDate", "isReviewAllowed", "isFirstReview", "isValidRating", " isEndorseAllowed"};
 
-    /** (yuting)
+    /**
      * Create a derby connection for iRate database
      * @return Connection conn
      */
@@ -77,7 +82,10 @@ public class Tables {
         System.out.println("Dropped all constraints.");
     }
 
-
+    /**
+     * Drop tables
+     * @param stmt
+     */
     private static void dropTables(Statement stmt) {
         for (String tbl : dbTables) {
             try {
@@ -88,6 +96,10 @@ public class Tables {
         System.out.println("Dropped all tables.");
     }
 
+    /**
+     * Create tables
+     * @param stmt
+     */
     private static void createTables(Statement stmt) {
         try {
             // create the Customer table
@@ -101,7 +113,6 @@ public class Tables {
                             + "  primary key (CustomerID)"
                             + ")";
             stmt.executeUpdate(createTable_Customer);
-//            System.out.println("Created entity table Customer");
 
             // create the Movie table
             String createTable_Movie =
@@ -111,7 +122,6 @@ public class Tables {
                             + "  primary key (MovieID)"
                             + ")";
             stmt.executeUpdate(createTable_Movie);
-//            System.out.println("Created entity table Movie");
 
             // create the Attendance table: this is a record of a movie seen by a customer on a given date
             String createTable_Attendance =
@@ -125,7 +135,6 @@ public class Tables {
                             + "  foreign key (CustomerID) references Customer(CustomerID) on delete cascade"
                             + ")";
             stmt.executeUpdate(createTable_Attendance);
-//            System.out.println("Created relation table Attendance");
 
             // create the Review table: this is a review of a particular movie attended by a customer within the last week
             String createTable_Review =
@@ -144,10 +153,8 @@ public class Tables {
                             + "  foreign key (CustomerID) references Customer(CustomerID) on delete cascade"
                             + "  )";
             stmt.executeUpdate(createTable_Review);
-//            System.out.println("Created relation table Review");
 
             // create the Endorsement table: this is an endorsement of a movie review by a customer
-
             String createTable_Endorsement =
                     "create table Endorsement ("
                             + "  ReviewID int,"
@@ -159,7 +166,6 @@ public class Tables {
                             + "  foreign key (CustomerID) references Customer (CustomerID) on delete cascade"
                             + " )";
             stmt.executeUpdate(createTable_Endorsement);
-//            System.out.println("Created relation table Endorsement");
 
         } catch (SQLException ex) {
             System.err.println("Error in Tables.createTables()");

@@ -1,22 +1,25 @@
 import java.sql.*;
 import java.util.Date;
 
-public class CustomerHelper {
+/**
+ * This class implements functions for CustomerFunctions class helper function
+ */
+class CustomerHelper {
     static ResultSet rs = null;
 
     /**
-     * check if the input id is a valid id
-     * @param id
-     * @param conn
+     * Check if the input id is a valid id
+     * @param id String, input id
+     * @param conn Connection
      * @return id if valid, -1 otherwise
      */
-    public int checkID(String id, Connection conn) {
+    static int checkID(String id, Connection conn) {
         if(id.isEmpty()) {
             return -1;
         }
         try {
             int res = Integer.parseInt(id);
-            if(!Biblio.taken(conn, res, 1)) return -1;
+            if(!PubUtil.taken(conn, res, 1)) return -1;
             return res;
         }
         catch (NumberFormatException e) {
@@ -25,14 +28,14 @@ public class CustomerHelper {
     }
 
     /**
-     * insert customer account data to database
-     * @param conn
+     * Insert customer account data to database
+     * @param conn Connection
      * @param name customer name
      * @param email customer email address
      * @param customerID customer id
      * @param date date of register an account
      */
-    public static boolean insertCustomer(Connection conn, String name, String email, int customerID, java.sql.Date date){
+    static boolean insertCustomer(Connection conn, String name, String email, int customerID, java.sql.Date date){
         try {
             PreparedStatement customer = conn.prepareStatement("insert into Customer (Name, Email, JoinedDate, CustomerID) values (?, ?, ?, ?)");
             customer.setString(1, name);
@@ -49,13 +52,14 @@ public class CustomerHelper {
     }
 
     /**
-     * insert movie attendance data to table Attendance
+     * Insert movie attendance data to table Attendance
      * @param conn
      * @param customerID
      * @param movieID
      * @param attendanceDate
+     * @return true if insert success, otherwise false
      */
-    public boolean insertAttendance(Connection conn, int customerID, int movieID, java.sql.Date attendanceDate){
+    public static boolean insertAttendance(Connection conn, int customerID, int movieID, java.sql.Date attendanceDate){
         PreparedStatement attendance;
         try {
             attendance = conn.prepareStatement("insert into Attendance (MovieId, AttendanceDATE, CustomerId) values (?, ?, ?)");
@@ -73,7 +77,7 @@ public class CustomerHelper {
     }
 
     /**
-     * insert movie review to Review table
+     * Insert movie review to Review table
      * @param conn
      * @param customerID
      * @param movieID
@@ -81,9 +85,9 @@ public class CustomerHelper {
      * @param rate
      * @param reviewStr
      * @param today
-     * @return
+     * @return true if insert success, otherwise false
      */
-    public boolean insertReview(Connection conn, int customerID, int movieID, int reviewID, int rate, String reviewStr, java.sql.Date today){
+    public static boolean insertReview(Connection conn, int customerID, int movieID, int reviewID, int rate, String reviewStr, java.sql.Date today){
         PreparedStatement review;
         try {
             review = conn.prepareStatement("insert into Review (CustomerID, MovieID, ReviewDate, Rating, ReviewID, Review) values (?, ?, ?, ?, ?, ?)");
@@ -103,7 +107,15 @@ public class CustomerHelper {
         return true;
     }
 
-    public boolean insertEndorsement(Connection conn, int reviewID, int customerID, java.sql.Date today){
+    /**
+     * Insert endorsement of review to endorsement table
+     * @param conn
+     * @param reviewID
+     * @param customerID
+     * @param today
+     * @return true if insert success, otherwise false
+     */
+    public static boolean insertEndorsement(Connection conn, int reviewID, int customerID, java.sql.Date today){
         PreparedStatement endorse;
         try {
             endorse = conn.prepareStatement("insert into Endorsement (ReviewID, CustomerID, EndorsementDate) values (?, ?, ?)");
@@ -120,108 +132,24 @@ public class CustomerHelper {
         return true;
     }
 
-    public static ResultSet getTopMovies(Connection conn){
-        ResultSet RS = null;
+    /**
+     * Calculate the average rate for all movies and return the result set in descending order
+     * @param stmt Statement
+     * @return result set of all movies name and average rating, in descending order
+     */
+    public static ResultSet getTopMovies(Statement stmt){
+        String query = "SELECT m.Title, r.avg_rating FROM " +
+                "(SELECT movieID, AVG(Rating) AS avg_rating FROM Review " +
+                "GROUP BY movieID) r " +
+                "JOIN Movie m ON r.movieId = m.movieId " +
+                "ORDER BY r.avg_rating DESC";
         try {
-            String query1 = "(\nselect cast(avg(Rating) as DOUBLE) \nFrom Review \nwhere review.movieid = movie.movieid) as avgRating";
-            String query2 = "\nselect title," + query1 + " \nfrom movie \norder by avgRating desc";
-            //System.out.println("Query: \n"+query2);
-            PreparedStatement findMovieId = conn.prepareStatement(query2);
-            rs = findMovieId.executeQuery();
+            rs = stmt.executeQuery(query);
         } catch (SQLException e) {
             System.out.println("Sorry. Information not available now");
+            e.printStackTrace();
         }
         return rs;
-    }
-
-    /**
-     * print the table data related to a specific customer
-     * @param stmt
-     * @param table
-     * @param id
-     */
-    public static void showInformation(Statement stmt, String table, String colName, int id){
-        System.out.println("["+table+"]");
-
-        try {
-            rs = stmt.executeQuery("SELECT * From "+table+" where " + colName +" = "+id);
-        } catch (SQLException e){}
-        printResultSet(rs);
-    }
-
-    /**
-     * print the specific table data
-     * @param stmt
-     * @param table
-     */
-    public static void showTable(Statement stmt, String table){
-        System.out.println("["+table+"]");
-
-        try {
-            rs = stmt.executeQuery("SELECT * From "+table);
-        } catch (SQLException e) {}
-        printResultSet(rs);
-    }
-
-
-
-
-    public static void printResultSet(ResultSet rs) {
-        try {
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int numberOfColumns = rsmd.getColumnCount();
-            String[] row = new String [numberOfColumns];
-
-            for (int i = 1; i <= numberOfColumns; i++) {
-                String columnName = rsmd.getColumnName(i);
-                row[i-1] = columnName;
-            }
-            Biblio.printLine(numberOfColumns);
-            Biblio.printRow(row);
-            Biblio.printLine(numberOfColumns);
-            while (rs.next()) {
-                for (int i = 1; i <= numberOfColumns; i++) {
-
-                    String columnValue = rs.getString(i);
-                    row [i-1] = columnValue;
-                }
-                Biblio.printRow(row);
-            }
-            Biblio.printLine(numberOfColumns);
-            System.out.println();
-        } catch (SQLException e) {
-            System.out.println("Information failed to show!");
-        }
-    }
-
-    public static void printTop(ResultSet rs){
-        try {
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int numberOfColumns = rsmd.getColumnCount();
-            String[] row = new String [numberOfColumns];
-
-            for (int i = 1; i <= numberOfColumns; i++) {
-                String columnName = rsmd.getColumnName(i);
-                row[i-1] = columnName;
-            }
-            Biblio.printLine(numberOfColumns);
-            Biblio.printRow(row);
-            Biblio.printLine(numberOfColumns);
-            int num = 0;
-            while (rs.next() && num < 3) {
-                for (int i = 1; i <= numberOfColumns; i++) {
-
-                    String columnValue = rs.getString(i);
-                    row [i-1] = columnValue;
-                }
-                Biblio.printRow(row);
-                num++;
-            }
-            Biblio.printLine(numberOfColumns);
-            System.out.println();
-        } catch (SQLException e) {
-            System.out.println("Information failed to show!");
-        }
     }
 
 }

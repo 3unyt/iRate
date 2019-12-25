@@ -8,7 +8,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 /**
- * @version xuefang 12-03 21:16
+ * Helper functions that are needed to create tables
  */
 public class DBFunctions {
 
@@ -27,7 +27,6 @@ public class DBFunctions {
 
 
     /**
-     * (xuefang) update yuting in v0.3
      * Check whether email is a valid email address
      *
      * @param email
@@ -47,9 +46,9 @@ public class DBFunctions {
     }
 
 
-    /** chuhan | update yuting in v0.3
+    /**
+     * Attendance date should not prior to the customer's join_date
      *
-     * attendance date should not prior to the customer's join_date
      * @param cid int, customer id
      * @param attendanceDate java.sql.Date, attendance date for the movie
      * @return true if attendance date is valid. false if customer does not exist or the attendance date is invalid
@@ -82,7 +81,6 @@ public class DBFunctions {
     }
 
     /**
-     * chuhan | update yuting in v0.3
      * The customer must review the movie within 7 days of attendance.
      *
      * @param cid int, customer id
@@ -134,7 +132,6 @@ public class DBFunctions {
 
 
     /**
-     * (xuefang) update in v0.3
      * There can only be one movie review per customer, which means a customer can review a certain movie only once.
      *
      * @param cid int, indicates the customer who is going to review the movie
@@ -165,7 +162,6 @@ public class DBFunctions {
     }
 
     /**
-     * (xuefang) update yuting in v0.3
      * This is the function to check if the rating is valid. Rating must be any integer between 1 and 5.
      * 1 = BAD, 2 = DISAPPOINTING, 3 = GOOD, 4 = GREAT, 5 = FANTASTIC.
      *
@@ -182,7 +178,6 @@ public class DBFunctions {
     }
 
     /**
-     * (xuefang)
      * This is the function that checks if the date is open for endorsement for a particular review:
      * Rule: voting is closed for all reviews written three days ago.
      *
@@ -209,7 +204,6 @@ public class DBFunctions {
     }
 
     /**
-     * (xuefang)
      * This is the function to check if the voter is voting his or her own review. The rule is a customer cannot endorse
      * his or her own review.
      *
@@ -228,7 +222,6 @@ public class DBFunctions {
     }
 
     /**
-     * (xuefang)
      * This is the function to check if the current endorsement date for a movie is at least one day after the customer's
      * endorsement of a review for the same movie.
      *
@@ -251,7 +244,6 @@ public class DBFunctions {
     }
 
     /**
-     * (xuefang)
      * This function checks if the endorsement is allowed for a review of a certain movie.
      *
      * @param rid int, reviewID
@@ -268,7 +260,8 @@ public class DBFunctions {
             String query = "select customerID, movieID, reviewDate from Review where reviewID = " + rid;
             ResultSet rs = stmt.executeQuery(query);
             if (!rs.next()) {
-                System.err.println("Invalid reviewID.");
+                System.out.println(rid);
+                System.err.println("Error: reviewID does not exist! [DBFunctions.isEndorseAllowed()]");
                 return false;
             }
             int cid1 = rs.getInt("customerID");

@@ -3,11 +3,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * This class implements functions for TheaterFunctions class helper function
+ */
 public class TheaterHelper {
 
     /**
      * insert a movie into the table Movies
-
      * @param movieTitle the title of movie
      * @param movieID the movie id
      */
@@ -22,7 +24,7 @@ public class TheaterHelper {
 
             System.out.println("Inserted new movie: ");
             Statement stmt = conn.createStatement();
-            CustomerHelper.showInformation(stmt, "Movie", "MovieID", movieID);
+            PubAPI.showInformation(stmt, null, "Movie", "MovieID", movieID);
 
         } catch (SQLException e){
             System.err.println("Failed to insert movie: " + movieTitle);

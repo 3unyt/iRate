@@ -5,8 +5,18 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
+/**
+ * This class is the main page of the theater view
+ * Then there are 6 options for customer to choose.
+ */
 public class TheaterFunctions {
 
+    /**
+     * Different operation for employee's choice
+     * @param conn
+     * @param stmt
+     * @param readUser
+     */
     public static void theaterView(Connection conn, Statement stmt, Scanner readUser){
         System.out.println("=========  Welcome! Theater Employee =========");
 
@@ -25,16 +35,19 @@ public class TheaterFunctions {
         }
     }
 
+    /**
+     * The initial page for theater's employee to choose options
+     */
     private static void printTheaterOptions(){
         System.out.println(
                 "\n--------- Options for Theatre ------------\n" +
-                "1. Print all movies\n" +
-                "2. Insert a movie\n" +
-                "3. Delete a movie\n" +
-                "4. Select the author of a top-rated review\n" +
-                "5. Select a lucky customer for today\n" +
-                "6. Exit theater view\n" +
-                "Enter your option: "
+                        "1. Print all movies\n" +
+                        "2. Insert a movie\n" +
+                        "3. Delete a movie\n" +
+                        "4. Select the author of a top-rated review\n" +
+                        "5. Select a lucky customer for today\n" +
+                        "6. Exit theater view\n" +
+                        "Enter your choice: "
         );
     }
 
@@ -48,7 +61,7 @@ public class TheaterFunctions {
         System.out.print("Please input the movie title: ");
         String movieTitle = userInput.nextLine();
 
-        int movieID = Biblio.generateID(0, conn);
+        int movieID = PubUtil.generateID(0, conn);
 
         TheaterHelper.insertMovie(conn, movieTitle, movieID);
     }
@@ -65,12 +78,12 @@ public class TheaterFunctions {
         System.out.print("Please enter the movie id you want to delete: ");
         int movieID = userInput.nextInt();
         userInput.nextLine();
-        if (!PubAPI.inTable(conn, stmt, "Movie", "MovieID", movieID)){
+        if (!PubUtil.inTable(stmt, "Movie", "MovieID", movieID)){
             System.out.println("Failed to delete! Movie not in table!");
             return false;
         }
         System.out.println("Are you sure you want to delete this movie (y/n)? ");
-        CustomerHelper.showInformation(stmt, "Movie", "MovieID", movieID);
+        PubAPI.showInformation(stmt, null,"Movie", "MovieID", movieID);
         String input = userInput.nextLine();
         if (input.equalsIgnoreCase("Y")){
             TheaterHelper.deleteMovie(stmt, movieID);
@@ -81,13 +94,16 @@ public class TheaterFunctions {
         }
     }
 
-
-
+    /**
+     * Select the top review customer for a free ticket gift
+     * @param conn
+     * @param userInput
+     */
     public static void selectFreeTicketCustomer(Connection conn, Scanner userInput){
         System.out.println("------ Select Top Review Author --------");
         System.out.print("Please enter the date: ");
         String inputDate = userInput.nextLine();
-        java.sql.Date date = Biblio.convertToDate(inputDate);
+        java.sql.Date date = PubUtil.convertToDate(inputDate);
         if(date==null) return;
         int[] id_set = selectTopReviewCustomer(conn, date);
         int customerID = id_set[0];
@@ -95,9 +111,9 @@ public class TheaterFunctions {
         int movieID = id_set[2];
         int vote = id_set[3];
         System.out.printf("Congratulations to customer: %d\n" +
-                        "   You have won a free movie ticket!\n" +
-                        "   for writing a top-voted review %d for movie: %d\n" +
-                        "   that has %d vote(s).", customerID, reviewID, movieID, vote);
+                "   You have won a free movie ticket!\n" +
+                "   for writing a top-voted review %d for movie: %d\n" +
+                "   that has %d vote(s).", customerID, reviewID, movieID, vote);
     }
 
     /**
@@ -134,7 +150,7 @@ public class TheaterFunctions {
                             "            where MovieID = ? and ReviewDate <= ?) " +
                             "    group by ReviewID " +
                             "    order by vote desc "
-                            );
+            );
             select_top_review_for_movie.setDate(2, latestReviewDate);
 
             select_review_author = conn.prepareStatement("select CustomerID from Review where ReviewID = ?");
@@ -146,8 +162,6 @@ public class TheaterFunctions {
                 select_top_review_for_movie.setInt(1, movieID);
 
                 rs = select_top_review_for_movie.executeQuery();
-
-//                CustomerHelper.printTop(rs);
 
                 if (rs.next()) {
                     ReviewID = rs.getInt("ReviewID");
@@ -177,7 +191,7 @@ public class TheaterFunctions {
 
     }
 
-    /**(yuting)
+    /**
      * Select all movies that has been reviewed no later than latestReviewDate.
      * @param conn database connection
      * @param latestReviewDate the latest review date of the movie
@@ -210,7 +224,7 @@ public class TheaterFunctions {
 
     }
 
-    /**(yuting)
+    /**
      * Select a lucky customer for winning a free gift.
      * @param conn
      * @param userInput for theatre to input the current date
@@ -221,7 +235,7 @@ public class TheaterFunctions {
         // input date
         System.out.print("Please enter the date: ");
         String inputDate = userInput.nextLine();
-        java.sql.Date date = Biblio.convertToDate(inputDate);
+        java.sql.Date date = PubUtil.convertToDate(inputDate);
 
         // get id of the lucky customer
         int customerID = selectLuckyCustomer(conn, date);
@@ -234,11 +248,11 @@ public class TheaterFunctions {
 
 
         System.out.println("Congratulations to our lucky customer: ");
-        CustomerHelper.showInformation(stmt, "Customer", "CustomerID", customerID);
+        PubAPI.showInformation(stmt, null,"Customer", "CustomerID", customerID);
 
     }
 
-    /**(yuting)
+    /**
      * Select a lucky customer from those who voted a review within a given date
      * @param conn database connection
      * @param date the given date

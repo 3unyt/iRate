@@ -4,19 +4,16 @@ import java.io.*;
 import java.sql.*;
 import java.util.Arrays;
 
+/**
+ * This class load default data from file and print different types of table informations
+ */
 public class PubAPI {
 
-
-    // print main ui:
-    /*
-    - load default data
-    - print all data
-    - login as customer
-    - login as theater
-    - quit
+    /**
+     * Insert data from default file
+     * @param conn
+     * @param stmt
      */
-
-
     public static void loadDefaultData(Connection conn, Statement stmt){
         clearData(stmt);
         loadCustomer(conn);
@@ -24,15 +21,16 @@ public class PubAPI {
         loadAttendance(conn);
         loadReview(conn);
         loadEndorsement(conn);
-
     }
 
+    /**
+     * Clear data from tables
+     * @param stmt
+     */
     public static void clearData(Statement stmt){
-        // clear data from tables
         for (String tbl : Tables.dbTables) {
             try {
                 stmt.executeUpdate("delete from " + tbl);
-//                System.out.println("cleared table: "+tbl);
             } catch (SQLException ex) {
                 System.out.println("Did not truncate table " + tbl);
             }
@@ -40,7 +38,7 @@ public class PubAPI {
         System.out.println("Cleared all tables.");
     }
 
-    /** yuting
+    /**
      * Load customer data from file
      * @param conn
      */
@@ -64,7 +62,7 @@ public class PubAPI {
                 if (data.length != 4) continue;
                 customer.setString(1, data[0]);
                 customer.setString(2, data[1]);
-                customer.setDate(3, Biblio.convertToDate(data[2]));
+                customer.setDate(3, PubUtil.convertToDate(data[2]));
                 customer.setInt(4, Integer.parseInt(data[3]));
                 customer.execute();
                 count++;
@@ -82,7 +80,7 @@ public class PubAPI {
         System.out.println("Loaded " + count + " customers.");
     }
 
-    /** yuting
+    /**
      * Load movie data from file
      * @param conn
      */
@@ -121,7 +119,7 @@ public class PubAPI {
         System.out.println("Loaded " + count + " movies.");
     }
 
-    /** yuting
+    /**
      * Load attentance data from file
      * @param conn
      */
@@ -144,7 +142,7 @@ public class PubAPI {
                 String[] data = line.split("\t");
                 if (data.length != 3) continue;
                 attendance.setInt(1, Integer.parseInt(data[0]));
-                attendance.setDate(2, Biblio.convertToDate(data[1]));
+                attendance.setDate(2, PubUtil.convertToDate(data[1]));
                 attendance.setInt(3, Integer.parseInt(data[2]));
 
                 attendance.execute();
@@ -187,7 +185,7 @@ public class PubAPI {
                 if (data.length != 6) continue;
                 review.setInt(1, Integer.parseInt(data[0]));
                 review.setInt(2, Integer.parseInt(data[1]));
-                review.setDate(3, Biblio.convertToDate(data[2]));
+                review.setDate(3, PubUtil.convertToDate(data[2]));
                 review.setInt(4, Integer.parseInt(data[3]));
                 review.setInt(6, Integer.parseInt(data[4]));
                 review.setString(5, data[5]);
@@ -208,7 +206,7 @@ public class PubAPI {
     }
 
     /**
-     * L
+     * Load endorsement data from file
      * @param conn
      */
     public static void loadEndorsement(Connection conn){
@@ -231,7 +229,7 @@ public class PubAPI {
                 if (data.length != 3) continue;
                 endorse.setInt(1, Integer.parseInt(data[0]));
                 endorse.setInt(2, Integer.parseInt(data[1]));
-                endorse.setDate(3, Biblio.convertToDate(data[2]));
+                endorse.setDate(3, PubUtil.convertToDate(data[2]));
                 endorse.execute();
                 count++;
 
@@ -258,67 +256,100 @@ public class PubAPI {
         }
     }
 
-    public static void printTable(Statement stmt, ResultSet rs, String tbl) {
-        System.out.println("| Table: " + tbl + "|");
-        try{
-            rs = stmt.executeQuery("select * from " + tbl);
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int nColumns = rsmd.getColumnCount();
-            String[] colNames = new String[nColumns];
+    /**
+     * print the specific table data
+     * @param stmt
+     * @param table
+     */
+    public static void printTable(Statement stmt, ResultSet rs, String table){
+        System.out.println("| Table: " + table + "|");
 
-            // get column name
-            for (int i = 1; i<=nColumns; i++){
-                colNames[i-1] = rsmd.getColumnName(i);
-
-            }
-
-            // print titles
-            Biblio.printLine(nColumns);
-            Biblio.printRow(colNames);
-            Biblio.printLine(nColumns);
-
-            // print rows:
-            String[] row = new String[nColumns];
-            while (rs.next()){
-                for (int i = 1; i <= nColumns; i++) {
-                    row [i-1] = rs.getString(i);
-                }
-                Biblio.printRow(row);
-            }
-
-            Biblio.printLine(nColumns);
-            System.out.println();
-        } catch (SQLException e){
-            System.err.println("Failed to print table: " + tbl);
-        }
-
-
+        try {
+            rs = stmt.executeQuery("SELECT * From "+table);
+        } catch (SQLException e) {}
+        printResultSet(rs);
     }
-
-
 
     /**
-     * Check whether a key is in table
-     * @param conn
+     * print the table data related to a specific customer
      * @param stmt
-     * @param tbl
-     * @param key
+     * @param table
+     * @param id
      */
-    public static boolean inTable(Connection conn, Statement stmt, String tbl, String colName, int key){
-        ResultSet rs;
-        String query = "select "+colName+" from "+tbl+" where "+colName+"  = " + key;
-        try{
-            rs = stmt.executeQuery(query);
-            return rs.next();
-        } catch (SQLException e){
-            System.err.println("Error: SQLException in PubAPI.inTable()");
-        }
+    public static void showInformation(Statement stmt, ResultSet rs, String table, String colName, int id){
+        System.out.println("["+table+"]");
 
-        return false;
+        try {
+            rs = stmt.executeQuery("SELECT * From "+table+" where " + colName +" = "+id);
+        } catch (SQLException e){}
+        printResultSet(rs);
     }
 
+    /**
+     * Print top rows of a given result set
+     * @param rs
+     * @param head int, number of rows to print
+     */
+    public static void printTop(ResultSet rs, int head){
+        try {
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int numberOfColumns = rsmd.getColumnCount();
+            String[] row = new String [numberOfColumns];
 
+            for (int i = 1; i <= numberOfColumns; i++) {
+                String columnName = rsmd.getColumnName(i);
+                row[i-1] = columnName;
+            }
+            PubUtil.printLine(numberOfColumns);
+            PubUtil.printRow(row);
+            PubUtil.printLine(numberOfColumns);
+            int num = 0;
+            while (rs.next() && num < head) {
+                for (int i = 1; i <= numberOfColumns; i++) {
 
+                    String columnValue = rs.getString(i);
+                    row [i-1] = columnValue;
+                }
+                PubUtil.printRow(row);
+                num++;
+            }
+            PubUtil.printLine(numberOfColumns);
+            System.out.println();
+        } catch (SQLException e) {
+            System.out.println("Information failed to show!");
+        }
 
+    }
+
+    /**
+     * Print a given result set obtained from sql query
+     */
+    public static void printResultSet(ResultSet rs) {
+        try {
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int numberOfColumns = rsmd.getColumnCount();
+            String[] row = new String [numberOfColumns];
+
+            for (int i = 1; i <= numberOfColumns; i++) {
+                String columnName = rsmd.getColumnName(i);
+                row[i-1] = columnName;
+            }
+            PubUtil.printLine(numberOfColumns);
+            PubUtil.printRow(row);
+            PubUtil.printLine(numberOfColumns);
+            while (rs.next()) {
+                for (int i = 1; i <= numberOfColumns; i++) {
+
+                    String columnValue = rs.getString(i);
+                    row [i-1] = columnValue;
+                }
+                PubUtil.printRow(row);
+            }
+            PubUtil.printLine(numberOfColumns);
+            System.out.println();
+        } catch (SQLException e) {
+            System.out.println("Information failed to show!");
+        }
+    }
 
 }
