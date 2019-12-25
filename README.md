@@ -1,5 +1,7 @@
 ## iRate: Database of a Movie Rating System
 
+Yuting, Chuhan and Xuefang
+
 
 
 **Introduction**
