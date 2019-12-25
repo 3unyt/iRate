@@ -9,7 +9,7 @@ The functions and output results are listed below:
 - Created tables by calling `Tables.initializeAll()`.
 - Inserted test movies by calling `Test.insertTestMovies()`.
 
-![image-20191204234315412](test_result0.png)
+![image-20191204234315412](test_pics/test_result0.png)
 
 
 
@@ -20,7 +20,7 @@ The functions and output results are listed below:
 - Check constraint: invalid email format
 - Output test results:
 
-![image-20191204233541476](test_result1.png)
+![image-20191204233541476](test_pics/test_result1.png)
 
 
 
@@ -30,7 +30,7 @@ The functions and output results are listed below:
 - Check constraint: a customer cannot attend a movie before registration.
 - Output test results:
 
-![image-20191204233701623](test_result2.png)
+![image-20191204233701623](test_pics/test_result2.png)
 
 
 
@@ -45,7 +45,7 @@ The functions and output results are listed below:
 
 - Output test results:
 
-![image-20191204233858939](test_result3.png)
+![image-20191204233858939](test_pics/test_result3.png)
 
 
 
@@ -58,7 +58,7 @@ The functions and output results are listed below:
 
 - Output test results:
 
-![image-20191204233945199](test_result4.png)
+![image-20191204233945199](test_pics/test_result4.png)
 
 
 

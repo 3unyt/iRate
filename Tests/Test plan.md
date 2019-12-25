@@ -93,12 +93,10 @@ Then you can test following functions by following the instructions in `/Tests/T
   - delete movie
 - Theater Activity: 
   - select an author for the top-rated review
-<<<<<<< HEAD
   - select a lucky customer who voted on a certain day
-=======
   - select a lucky customer who voted on a certain day
 - Explore data: 
   - print all movies
   - print all reviews ordered by number of endorsement
   - Print all customers who voted on a certain day
->>>>>>> c1d4bc0ca690bb31e4a7a6aecab59c3970e8554e
+

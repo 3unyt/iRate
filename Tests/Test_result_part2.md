@@ -72,7 +72,7 @@ Enter your email address(for example: abcd@gmail.com):
 
 Then you will see your customer information as below:
 
-![image-20191205012250808](test_result_customer1.png)
+![image-20191205012250808](test_pics/test_result_customer1.png)
 
 
 
@@ -167,7 +167,7 @@ Thank you for your review!
 
 Then your review information will be shown:
 
-![image-20191205020416104](test_result_customer2.png)
+![image-20191205020416104](test_pics/test_result_customer2.png)
 
 
 
@@ -175,7 +175,7 @@ Then your review information will be shown:
 
 Then your review information will be shown:
 
-![image-20191205020338852](test_result_customer3.png)
+![image-20191205020338852](test_pics/test_result_customer3.png)
 
 
 
@@ -308,7 +308,7 @@ Congratulations to customer: 6763382
 
   In sample data, most customers voted a review at 2019-12-10. You can enter date 2019-12-10, and get a result as below (customer may not be the same person as below).
 
-![image-20191205014455258](test_result_theater1.png)
+![image-20191205014455258](test_pics/test_result_theater1.png)
 
 
 
