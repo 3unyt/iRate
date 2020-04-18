@@ -1,10 +1,6 @@
 import java.sql.*;
 import java.util.Scanner;
 
-/**
- * bullshit,real bullshit, new bs
- */
-
 
 public class Test {
     public static void main(String[] args) {
