@@ -2,7 +2,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 /**
- * sdfjlas;kfjsdl;f
+ * bullshit
  */
 
 
